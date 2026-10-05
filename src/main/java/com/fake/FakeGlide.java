@@ -7,24 +7,28 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.Vec3d;
 
 /**
- * Purely visual glide for the local player (pose + camera).
+ * Fake elytra glide for the local player.
  *
- * The pose mixin only reports "gliding" OUTSIDE of the client tick (i.e. while
- * rendering frames). During the tick, where movement/physics/packets run,
- * the game sees the real value, so nothing about your movement changes.
- * The camera shift is applied after the camera is positioned, so your real
- * position, hitbox and reach are untouched.
+ * - Pose/camera are visual only (pose mixin reports gliding only while rendering).
+ * - Glide STARTS only when you press jump again while in the air (like a real elytra),
+ *   not on a normal jump.
+ * - While gliding, falling speed is capped so you descend slowly. Hitbox stays normal.
  */
 public final class FakeGlide {
     /** Real glide eye height is 0.4 vs 1.62 standing. */
     private static final double CAMERA_DROP = 1.2;
 
+    /** Max downward speed (blocks/tick) while gliding. 0.1 = 2 blocks/sec. */
+    private static final double MAX_FALL_SPEED = 0.10;
+
     private static volatile boolean inTick = false;
     private static volatile boolean active = false;
     private static volatile int ticks = 0;
     private static int airTicks = 0;
+    private static boolean jumpHeld = false;
 
     private static float blend = 0f;
     private static long lastNanos = 0L;
@@ -35,15 +39,21 @@ public final class FakeGlide {
         ClientTickEvents.START_CLIENT_TICK.register(client -> inTick = true);
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             inTick = false;
-            update(client.player);
+            update(client);
         });
     }
 
-    private static void update(ClientPlayerEntity p) {
+    private static void reset() {
+        active = false;
+        ticks = 0;
+        airTicks = 0;
+        jumpHeld = false;
+    }
+
+    private static void update(MinecraftClient client) {
+        ClientPlayerEntity p = client.player;
         if (p == null || p.isSpectator() || p.isSleeping()) {
-            active = false;
-            ticks = 0;
-            airTicks = 0;
+            reset();
             return;
         }
 
@@ -56,14 +66,36 @@ public final class FakeGlide {
                 && !p.hasVehicle()
                 && !p.isClimbing();
 
+        boolean jump = client.options.jumpKey.isPressed();
         airTicks = air ? airTicks + 1 : 0;
-        active = gear && airTicks >= 3;
+
+        if (!gear || !air) {
+            active = false;
+        } else if (!active && jump && !jumpHeld && airTicks >= 2) {
+            // fresh jump press while already in the air -> start gliding
+            active = true;
+        }
+        jumpHeld = jump;
+
         ticks = active ? ticks + 1 : 0;
+
+        // Slow the fall like a real glide (hitbox/pose untouched).
+        if (active) {
+            Vec3d v = p.getVelocity();
+            if (v.y < -MAX_FALL_SPEED) {
+                p.setVelocity(v.x, -MAX_FALL_SPEED, v.z);
+            }
+        }
     }
 
     /** True only for the local player, only while rendering, only when the fake glide is on. */
     public static boolean visualOnly(LivingEntity entity) {
         return active && !inTick && entity == MinecraftClient.getInstance().player;
+    }
+
+    /** True for the local player whenever the fake glide is on (tick or render). */
+    public static boolean isActiveFor(LivingEntity entity) {
+        return active && entity == MinecraftClient.getInstance().player;
     }
 
     public static int ticks() {

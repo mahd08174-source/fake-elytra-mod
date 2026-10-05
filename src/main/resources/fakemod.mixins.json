@@ -3,7 +3,7 @@
   "package": "com.fake.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
-  "client": ["LivingEntityMixin", "CameraMixin"],
+  "client": ["LivingEntityMixin", "CameraMixin", "ElytraFlightControllerMixin"],
   "injectors": {
     "defaultRequire": 1
   }
