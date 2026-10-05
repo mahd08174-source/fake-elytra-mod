@@ -23,9 +23,10 @@ public class FakeModClient implements ClientModInitializer {
 
     private static void applyFakePrice(ItemStack stack, List<Text> lines) {
         long unit;
-        if (stack.isOf(Items.ELYTRA)) {
+        // Real items and their fakes (leather chestplate = elytra, sea pickle = netherite ingot)
+        if (stack.isOf(Items.ELYTRA) || stack.isOf(Items.LEATHER_CHESTPLATE)) {
             unit = ELYTRA_PRICE;
-        } else if (stack.isOf(Items.NETHERITE_INGOT)) {
+        } else if (stack.isOf(Items.NETHERITE_INGOT) || stack.isOf(Items.SEA_PICKLE)) {
             unit = NETHERITE_INGOT_PRICE;
         } else {
             return;
