@@ -38,7 +38,7 @@ public class FakeModClient implements ClientModInitializer {
                                 .executes(ctx -> {
                                     AhPrices.get("elytra");
                                     AhPrices.get("netherite_ingot");
-                                    String key = FakeConfig.apiKey().isEmpty() ? "no API key set (using fallback prices)" : "API key set";
+                                    String key = "prices from donutsmp.stacksail.com (no key needed)";
                                     ctx.getSource().sendFeedback(Text.literal("[fakemod] " + key));
                                     ctx.getSource().sendFeedback(Text.literal(AhPrices.describe("elytra")));
                                     ctx.getSource().sendFeedback(Text.literal(AhPrices.describe("netherite_ingot")));
