@@ -10,6 +10,7 @@ import net.minecraft.item.Items;
 import net.minecraft.item.equipment.EquipmentAssetKeys;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Rarity;
 
 public class FakeMod implements ModInitializer {
     @Override
@@ -26,6 +27,7 @@ public class FakeMod implements ModInitializer {
                     .model(EquipmentAssetKeys.ELYTRA)
                     .damageOnHurt(false)
                     .build());
+                b.add(DataComponentTypes.RARITY, Rarity.EPIC);
                 b.add(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT);
             });
             // Sea pickle = fake netherite ingot.

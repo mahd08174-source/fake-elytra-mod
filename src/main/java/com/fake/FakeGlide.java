@@ -7,27 +7,24 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.Vec3d;
 
 /**
- * Fake elytra glide for the local player. 100% visual: real movement, hitbox,
- * and physics are never changed.
+ * Fake elytra glide for the local player.
  *
- * - Pose is visual only (pose mixin reports gliding only while rendering).
- * - Glide STARTS only when you press jump again while in the air (like a real elytra).
- * - The slow fall is faked with the camera: while gliding, the camera descends at a
- *   slow speed while your real body falls normally. The gap is eased back to zero
- *   when the glide ends (landing, water, etc).
+ * - Pose/camera are visual only (pose mixin reports gliding only while rendering).
+ * - Glide STARTS only when you press jump again while in the air (like a real elytra),
+ *   not on a normal jump.
+ * - While gliding, falling speed is capped so you descend slowly. Hitbox stays normal.
  */
 public final class FakeGlide {
     /** Real glide eye height is 0.4 vs 1.62 standing. */
     private static final double CAMERA_DROP = 1.2;
 
-    /** How fast the camera appears to fall while gliding (blocks/sec). */
-    private static final double VISUAL_FALL_SPEED = 2.0;
-    /** Max distance the camera may hover above your real position (blocks). */
-    private static final double MAX_LAG = 12.0;
-    /** How fast the camera catches up to the real position when the glide ends (1/sec). */
-    private static final double CATCH_UP_RATE = 8.0;
+    /** Fall speed is eased toward this (blocks/tick) so the descent is smooth, ~0.1 b/tick in practice. */
+    private static final double TARGET_FALL = -0.025;
+    /** How fast velocity is eased toward the target each tick (0..1). */
+    private static final double EASE = 0.5;
 
     private static volatile boolean inTick = false;
     private static volatile boolean active = false;
@@ -36,7 +33,6 @@ public final class FakeGlide {
     private static boolean jumpHeld = false;
 
     private static float blend = 0f;
-    private static double lag = 0.0;
     private static long lastNanos = 0L;
 
     private FakeGlide() {}
@@ -84,6 +80,14 @@ public final class FakeGlide {
         jumpHeld = jump;
 
         ticks = active ? ticks + 1 : 0;
+
+        // Slow the fall like a real glide (hitbox/pose untouched).
+        if (active) {
+            Vec3d v = p.getVelocity();
+            if (v.y < TARGET_FALL) {
+                p.setVelocity(v.x, v.y + (TARGET_FALL - v.y) * EASE, v.z);
+            }
+        }
     }
 
     /** True only for the local player, only while rendering, only when the fake glide is on. */
@@ -100,11 +104,7 @@ public final class FakeGlide {
         return ticks;
     }
 
-    /**
-     * Vertical camera offset, called once per frame.
-     * Negative part = low glide eye height. Positive part = camera hovering above the
-     * real body so the fall LOOKS slow.
-     */
+    /** Vertical camera offset (negative = lower), eased per frame so it glides in and out smoothly. */
     public static double cameraYOffset() {
         long now = System.nanoTime();
         float dt = lastNanos == 0L ? 0f : Math.min(0.1f, (now - lastNanos) / 1_000_000_000f);
@@ -113,18 +113,6 @@ public final class FakeGlide {
         float target = active ? 1f : 0f;
         blend += (target - blend) * (1f - (float) Math.exp(-10.0 * dt));
         if (Math.abs(blend) < 0.001f) blend = 0f;
-
-        if (active) {
-            ClientPlayerEntity p = MinecraftClient.getInstance().player;
-            double realDown = p == null ? 0.0 : Math.max(0.0, -p.getVelocity().y * 20.0);
-            lag += (realDown - VISUAL_FALL_SPEED) * dt;
-            if (lag < 0.0) lag = 0.0;
-            if (lag > MAX_LAG) lag = MAX_LAG;
-        } else {
-            lag *= Math.exp(-CATCH_UP_RATE * dt);
-            if (lag < 0.001) lag = 0.0;
-        }
-
-        return -CAMERA_DROP * blend + lag;
+        return -CAMERA_DROP * blend;
     }
 }

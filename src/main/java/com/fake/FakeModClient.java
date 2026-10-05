@@ -18,6 +18,7 @@ public class FakeModClient implements ClientModInitializer {
     public void onInitializeClient() {
         FakeConfig.load();
         FakeGlide.init();
+        FakeScoreboard.init();
 
         ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> applyPrice(stack, lines));
 
