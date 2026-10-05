@@ -1,2 +1,3 @@
 # fake-elytra-mod
-Fabric 1.21.11: leather chestplate glides like an elytra, sea pickles replace netherite ingots
+
+Fabric 1.21.11. Leather chestplate glides like an elytra. Sea pickles replace netherite ingots in smithing.
