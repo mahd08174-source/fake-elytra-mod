@@ -1,16 +1,12 @@
 package com.fake;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Items;
-import net.minecraft.util.Unit;
 
 public class FakeMod implements ModInitializer {
     @Override
     public void onInitialize() {
-        DefaultItemComponentEvents.MODIFY.register(ctx ->
-            ctx.modify(Items.LEATHER_CHESTPLATE, b ->
-                b.add(DataComponentTypes.GLIDER, Unit.INSTANCE)));
+        // Nothing here on purpose: no real glider component is added,
+        // so the client never tries to actually glide (no rubber-banding).
+        // The glide look is purely visual, see FakeGlide + LivingEntityMixin.
     }
 }

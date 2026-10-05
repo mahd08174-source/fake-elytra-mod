@@ -14,8 +14,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Compile (Yarn names) and remap to intermediary
-        run: bash build.sh
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.0'
+      - name: Build (Loom)
+        run: gradle build --no-daemon --stacktrace
+      - name: Collect jar
+        run: |
+          mkdir -p build-work
+          cp build/libs/fakemod-1.0.0.jar build-work/fakemod-1.0.0.jar
       - uses: actions/upload-artifact@v4
         with:
           name: fakemod
