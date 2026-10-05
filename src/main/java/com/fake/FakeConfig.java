@@ -15,6 +15,9 @@ public final class FakeConfig {
         /** Used when there is no API key or the lookup fails. */
         public long elytraFallback = 240_000_000L;
         public long netheriteIngotFallback = 5_000_000L;
+        /** Fake scoreboard lines (edit in game with the - key). */
+        public String scoreboardName = "Kingtemanke";
+        public String scoreboardMoney = "7.2b";
     }
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("fakemod.json");
@@ -60,5 +63,19 @@ public final class FakeConfig {
 
     public static long netheriteIngotFallback() {
         return data.netheriteIngotFallback;
+    }
+
+    public static String scoreboardName() {
+        return data.scoreboardName == null ? "Kingtemanke" : data.scoreboardName;
+    }
+
+    public static String scoreboardMoney() {
+        return data.scoreboardMoney == null ? "7.2b" : data.scoreboardMoney;
+    }
+
+    public static void setScoreboard(String name, String money) {
+        data.scoreboardName = name == null ? "" : name;
+        data.scoreboardMoney = money == null ? "" : money;
+        save();
     }
 }
