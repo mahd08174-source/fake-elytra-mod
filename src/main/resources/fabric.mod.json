@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "fakemod",
+  "version": "1.0.0",
+  "name": "Fake Elytra + Pickle Netherite",
+  "description": "Leather chestplate glides like an elytra. Sea pickles replace netherite ingots in smithing.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": { "main": ["com.fake.FakeMod"] },
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
