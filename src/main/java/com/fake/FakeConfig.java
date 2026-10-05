@@ -19,6 +19,7 @@ public final class FakeConfig {
         public String scoreboardName = "Kingtemanke";
         public String scoreboardMoney = "7.2b";
         /** Price label shown on tooltips. Blank = automatic. */
+        public boolean scoreboardEnabled = true;
         public String elytraLabel = "";
         public String ingotLabel = "";
     }
@@ -74,6 +75,15 @@ public final class FakeConfig {
 
     public static String scoreboardMoney() {
         return data.scoreboardMoney == null ? "7.2b" : data.scoreboardMoney;
+    }
+
+    public static boolean scoreboardEnabled() {
+        return data.scoreboardEnabled;
+    }
+
+    public static void setScoreboardEnabled(boolean on) {
+        data.scoreboardEnabled = on;
+        save();
     }
 
     public static String elytraLabel() {

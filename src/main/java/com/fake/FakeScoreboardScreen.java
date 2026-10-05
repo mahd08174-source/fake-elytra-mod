@@ -25,6 +25,10 @@ public class FakeScoreboardScreen extends Screen {
         return f;
     }
 
+    private static Text toggleText() {
+        return Text.literal("Fake scoreboard: " + (FakeConfig.scoreboardEnabled() ? "ON" : "OFF"));
+    }
+
     @Override
     protected void init() {
         int cx = this.width / 2;
@@ -35,8 +39,13 @@ public class FakeScoreboardScreen extends Screen {
         elytraField = field(cx, y + 70, FakeConfig.elytraLabel());
         ingotField = field(cx, y + 105, FakeConfig.ingotLabel());
 
+        this.addDrawableChild(ButtonWidget.builder(toggleText(), b -> {
+                    FakeConfig.setScoreboardEnabled(!FakeConfig.scoreboardEnabled());
+                    b.setMessage(toggleText());
+                }).dimensions(cx - 100, y + 135, 200, 20).build());
+
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Save"), b -> this.close())
-                .dimensions(cx - 50, y + 135, 100, 20).build());
+                .dimensions(cx - 50, y + 160, 100, 20).build());
     }
 
     @Override

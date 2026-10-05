@@ -10,6 +10,7 @@ import org.lwjgl.glfw.GLFW;
 /** Fake sidebar scoreboard on the right side of the screen. Client-side only. Press - to edit. */
 public final class FakeScoreboard {
     private static boolean minusHeld = false;
+    private static boolean equalHeld = false;
 
     private FakeScoreboard() {}
 
@@ -20,11 +21,18 @@ public final class FakeScoreboard {
                 client.setScreen(new FakeScoreboardScreen());
             }
             minusHeld = down;
+
+            // = key quickly toggles the fake scoreboard on/off
+            boolean eq = GLFW.glfwGetKey(client.getWindow().getHandle(), GLFW.GLFW_KEY_EQUAL) == GLFW.GLFW_PRESS;
+            if (eq && !equalHeld && client.currentScreen == null && client.player != null) {
+                FakeConfig.setScoreboardEnabled(!FakeConfig.scoreboardEnabled());
+            }
+            equalHeld = eq;
         });
 
         HudRenderCallback.EVENT.register((DrawContext ctx, net.minecraft.client.render.RenderTickCounter tick) -> {
             MinecraftClient mc = MinecraftClient.getInstance();
-            if (mc.player == null || mc.options.hudHidden) return;
+            if (mc.player == null || mc.options.hudHidden || !FakeConfig.scoreboardEnabled()) return;
             TextRenderer tr = mc.textRenderer;
 
             String name = FakeConfig.scoreboardName();

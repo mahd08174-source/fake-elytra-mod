@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class InGameHudMixin {
     @Inject(method = "renderScoreboardSidebar", at = @At("HEAD"), cancellable = true, require = 0)
     private void fakemod$hideSidebar(CallbackInfo ci) {
-        ci.cancel();
+        if (com.fake.FakeConfig.scoreboardEnabled()) ci.cancel();
     }
 }
