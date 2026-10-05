@@ -13,6 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Camera.class)
 public abstract class CameraMixin {
     @Shadow
+    private Vec3d pos;
+
+    @Shadow
     protected abstract void setPos(double x, double y, double z);
 
     @Inject(method = "update", at = @At("TAIL"))
@@ -23,7 +26,6 @@ public abstract class CameraMixin {
         double dy = FakeGlide.cameraYOffset();
         if (dy == 0.0) return;
 
-        Vec3d p = self.getPos();
-        this.setPos(p.x, p.y + dy, p.z);
+        this.setPos(this.pos.x, this.pos.y + dy, this.pos.z);
     }
 }
