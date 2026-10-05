@@ -48,20 +48,23 @@ public class FakeModClient implements ClientModInitializer {
 
     private static void applyPrice(ItemStack stack, List<Text> lines) {
         long unit;
+        String label;
         // Real items and their fakes (leather chestplate = elytra, sea pickle = netherite ingot)
         if (stack.isOf(Items.ELYTRA) || stack.isOf(Items.LEATHER_CHESTPLATE)) {
             Long ah = AhPrices.get("elytra");
             unit = ah != null ? ah : FakeConfig.elytraFallback();
+            label = FakeConfig.elytraLabel();
         } else if (stack.isOf(Items.NETHERITE_INGOT) || stack.isOf(Items.SEA_PICKLE)) {
             Long ah = AhPrices.get("netherite_ingot");
             unit = ah != null ? ah : FakeConfig.netheriteIngotFallback();
+            label = FakeConfig.ingotLabel();
         } else {
             return;
         }
 
-        MutableText line = Text.literal("~").formatted(Formatting.GRAY)
+        MutableText line = Text.literal("~").formatted(Formatting.DARK_GRAY)
                 .append(Text.literal("$").formatted(Formatting.GREEN))
-                .append(Text.literal(" " + fmt(unit)).formatted(Formatting.WHITE));
+                .append(Text.literal(" " + (label == null || label.isEmpty() ? fmt(unit) : label)).formatted(Formatting.WHITE));
 
         // Replace the server's price line if there is one, otherwise add ours.
         for (int i = 0; i < lines.size(); i++) {

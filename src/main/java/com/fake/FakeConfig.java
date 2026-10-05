@@ -18,6 +18,9 @@ public final class FakeConfig {
         /** Fake scoreboard lines (edit in game with the - key). */
         public String scoreboardName = "Kingtemanke";
         public String scoreboardMoney = "7.2b";
+        /** Price label shown on tooltips. Blank = automatic. */
+        public String elytraLabel = "";
+        public String ingotLabel = "";
     }
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("fakemod.json");
@@ -71,6 +74,20 @@ public final class FakeConfig {
 
     public static String scoreboardMoney() {
         return data.scoreboardMoney == null ? "7.2b" : data.scoreboardMoney;
+    }
+
+    public static String elytraLabel() {
+        return data.elytraLabel == null ? "" : data.elytraLabel.trim();
+    }
+
+    public static String ingotLabel() {
+        return data.ingotLabel == null ? "" : data.ingotLabel.trim();
+    }
+
+    public static void setLabels(String elytra, String ingot) {
+        data.elytraLabel = elytra == null ? "" : elytra.trim();
+        data.ingotLabel = ingot == null ? "" : ingot.trim();
+        save();
     }
 
     public static void setScoreboard(String name, String money) {
