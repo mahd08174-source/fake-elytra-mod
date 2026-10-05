@@ -21,8 +21,10 @@ public final class FakeGlide {
     /** Real glide eye height is 0.4 vs 1.62 standing. */
     private static final double CAMERA_DROP = 1.2;
 
-    /** Max downward speed (blocks/tick) while gliding. 0.1 = 2 blocks/sec. */
-    private static final double MAX_FALL_SPEED = 0.10;
+    /** Fall speed is eased toward this (blocks/tick) so the descent is smooth, ~0.1 b/tick in practice. */
+    private static final double TARGET_FALL = -0.025;
+    /** How fast velocity is eased toward the target each tick (0..1). */
+    private static final double EASE = 0.5;
 
     private static volatile boolean inTick = false;
     private static volatile boolean active = false;
@@ -82,8 +84,8 @@ public final class FakeGlide {
         // Slow the fall like a real glide (hitbox/pose untouched).
         if (active) {
             Vec3d v = p.getVelocity();
-            if (v.y < -MAX_FALL_SPEED) {
-                p.setVelocity(v.x, -MAX_FALL_SPEED, v.z);
+            if (v.y < TARGET_FALL) {
+                p.setVelocity(v.x, v.y + (TARGET_FALL - v.y) * EASE, v.z);
             }
         }
     }
