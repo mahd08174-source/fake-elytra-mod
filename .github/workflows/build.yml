@@ -1,6 +1,7 @@
 name: build
 on:
   push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: write
@@ -12,17 +13,26 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 9.2.1
-      - run: gradle build --no-daemon
+          java-version: '21'
+      - name: Compile (Yarn names) and remap to intermediary
+        run: bash build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: fakemod
-          path: build/libs/fakemod-1.0.0.jar
+          path: build-work/fakemod-1.0.0.jar
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
-          name: fakemod build ${{ github.run_number }}
-          files: build/libs/fakemod-1.0.0.jar
+          tag_name: v1.0.0-build${{ github.run_number }}
+          name: FakeMod 1.0.0 (build ${{ github.run_number }})
+          files: build-work/fakemod-1.0.0.jar
+      - name: Publish jar as base64 on dist branch
+        run: |
+          base64 -w0 build-work/fakemod-1.0.0.jar > /tmp/fakemod.jar.b64
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git checkout --orphan dist
+          git rm -rf --quiet .
+          cp /tmp/fakemod.jar.b64 fakemod.jar.b64
+          git add fakemod.jar.b64
+          git commit -q -m "dist build ${{ github.run_number }}"
+          git push -f origin dist
