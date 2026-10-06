@@ -84,6 +84,7 @@ public class FakeModClient implements ClientModInitializer {
     }
 
     private static String trim(double d) {
-        return d == Math.floor(d) ? Long.toString((long) d) : String.format("%.1f", d);
+        String s = String.format("%.1f", d);
+        return s.endsWith(".0") ? s.substring(0, s.length() - 2) : s;
     }
 }
